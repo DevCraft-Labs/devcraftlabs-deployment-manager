@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Contracts\Repositories;
+
+use App\Models\DeploymentScript;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
+interface DeploymentScriptRepositoryInterface
+{
+    public function paginate(int $perPage = 15): LengthAwarePaginator;
+
+    public function findOrFail(int $id): DeploymentScript;
+
+    public function create(array $data): DeploymentScript;
+
+    public function update(DeploymentScript $script, array $data): DeploymentScript;
+
+    public function delete(DeploymentScript $script): void;
+}
