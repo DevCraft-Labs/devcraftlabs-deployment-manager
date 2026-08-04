@@ -20,6 +20,13 @@
 2. Set cron expression and enable.
 3. Save.
 
+## Browse Database Provisioning Metadata
+1. Open **DB Provisioning**.
+2. Create a MySQL connection with a cPanel MySQL username/password.
+3. Use **Test** to confirm access, then choose **Open Explorer**.
+4. Select a database and table to view columns, types, nullable flags, default values, primary keys, and indexes.
+5. This explorer is strictly read-only and does not expose any data modification controls.
+
 ## Export Report
 1. Open Settings page.
 2. Click Download XLSX Report.

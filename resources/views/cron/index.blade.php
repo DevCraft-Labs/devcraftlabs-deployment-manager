@@ -6,11 +6,15 @@
 <tr>
 <td>{{ $script->name }}</td><td>{{ $script->cron_expression }}</td><td>{{ $script->cron_enabled ? 'Yes' : 'No' }}</td><td>-</td>
 <td>
+@can('cron.update')
 <form method="POST" action="{{ route('cron.update', $script) }}" class="d-flex gap-2">@csrf @method('PATCH')
 <input class="form-control form-control-sm" name="cron_expression" value="{{ $script->cron_expression }}">
 <select name="cron_enabled" class="form-select form-select-sm"><option value="1">Enable</option><option value="0">Disable</option></select>
 <button class="btn btn-sm btn-primary">Save</button>
 </form>
+@else
+<span class="text-secondary">Read-only</span>
+@endcan
 </td>
 </tr>
 @endforeach

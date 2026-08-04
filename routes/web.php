@@ -12,6 +12,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SmtpProfileController;
 use App\Http\Controllers\TelegramConnectionController;
 use App\Http\Controllers\TelegramWebhookController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
@@ -26,33 +27,53 @@ Route::post('/telegram/webhook', [TelegramWebhookController::class, 'handle'])
     ->name('telegram.webhook');
 
 Route::middleware('auth')->group(function (): void {
-    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
 
-    Route::resource('redis-profiles', RedisProfileController::class);
-    Route::post('/redis-profiles/{redisProfile}/test', [RedisProfileController::class, 'test'])->name('redis-profiles.test');
+    Route::resource('redis-profiles', RedisProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
+    Route::resource('redis-profiles', RedisProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
+    Route::resource('redis-profiles', RedisProfileController::class)->only(['edit', 'update'])->middleware('can:connections.update');
+    Route::delete('/redis-profiles/{redisProfile}', [RedisProfileController::class, 'destroy'])->middleware('can:connections.delete')->name('redis-profiles.destroy');
+    Route::post('/redis-profiles/{redisProfile}/test', [RedisProfileController::class, 'test'])->middleware('can:connections.test')->name('redis-profiles.test');
 
-    Route::resource('smtp-profiles', SmtpProfileController::class);
-    Route::post('/smtp-profiles/{smtpProfile}/test', [SmtpProfileController::class, 'test'])->name('smtp-profiles.test');
+    Route::resource('smtp-profiles', SmtpProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
+    Route::resource('smtp-profiles', SmtpProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
+    Route::resource('smtp-profiles', SmtpProfileController::class)->only(['edit', 'update'])->middleware('can:connections.update');
+    Route::delete('/smtp-profiles/{smtpProfile}', [SmtpProfileController::class, 'destroy'])->middleware('can:connections.delete')->name('smtp-profiles.destroy');
+    Route::post('/smtp-profiles/{smtpProfile}/test', [SmtpProfileController::class, 'test'])->middleware('can:connections.test')->name('smtp-profiles.test');
 
-    Route::resource('telegram-connections', TelegramConnectionController::class);
-    Route::post('/telegram-connections/{telegramConnection}/test', [TelegramConnectionController::class, 'test'])->name('telegram-connections.test');
+    Route::resource('telegram-connections', TelegramConnectionController::class)->only(['index', 'show'])->middleware('can:connections.view');
+    Route::resource('telegram-connections', TelegramConnectionController::class)->only(['create', 'store'])->middleware('can:connections.create');
+    Route::resource('telegram-connections', TelegramConnectionController::class)->only(['edit', 'update'])->middleware('can:connections.update');
+    Route::delete('/telegram-connections/{telegramConnection}', [TelegramConnectionController::class, 'destroy'])->middleware('can:connections.delete')->name('telegram-connections.destroy');
+    Route::post('/telegram-connections/{telegramConnection}/test', [TelegramConnectionController::class, 'test'])->middleware('can:connections.test')->name('telegram-connections.test');
 
-    Route::resource('deployment-scripts', DeploymentScriptController::class);
-    Route::post('/deployment-scripts/{deploymentScript}/run', [DeploymentScriptController::class, 'run'])->name('deployment-scripts.run');
-    Route::post('/deployment-scripts/{deploymentScript}/duplicate', [DeploymentScriptController::class, 'duplicate'])->name('deployment-scripts.duplicate');
-    Route::post('/deployment-scripts/{deploymentScript}/toggle', [DeploymentScriptController::class, 'toggle'])->name('deployment-scripts.toggle');
+    Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['index', 'show'])->middleware('can:scripts.view');
+    Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['create', 'store'])->middleware('can:scripts.create');
+    Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['edit', 'update'])->middleware('can:scripts.update');
+    Route::delete('/deployment-scripts/{deploymentScript}', [DeploymentScriptController::class, 'destroy'])->middleware('can:scripts.delete')->name('deployment-scripts.destroy');
+    Route::post('/deployment-scripts/{deploymentScript}/run', [DeploymentScriptController::class, 'run'])->middleware('can:scripts.run')->name('deployment-scripts.run');
+    Route::post('/deployment-scripts/{deploymentScript}/duplicate', [DeploymentScriptController::class, 'duplicate'])->middleware('can:scripts.create')->name('deployment-scripts.duplicate');
+    Route::post('/deployment-scripts/{deploymentScript}/toggle', [DeploymentScriptController::class, 'toggle'])->middleware('can:scripts.update')->name('deployment-scripts.toggle');
 
-    Route::get('/deployments/{execution}/logs', [DeploymentRunController::class, 'logs'])->name('deployments.logs');
+    Route::get('/deployments/{execution}/logs', [DeploymentRunController::class, 'logs'])->middleware('can:deployments.view')->name('deployments.logs');
 
-    Route::get('/cron', [CronManagerController::class, 'index'])->name('cron.index');
-    Route::patch('/cron/{deploymentScript}', [CronManagerController::class, 'update'])->name('cron.update');
+    Route::get('/cron', [CronManagerController::class, 'index'])->middleware('can:cron.view')->name('cron.index');
+    Route::patch('/cron/{deploymentScript}', [CronManagerController::class, 'update'])->middleware('can:cron.update')->name('cron.update');
 
-    Route::get('/provisioning', [DatabaseProvisioningController::class, 'index'])->name('provisioning.index');
-    Route::get('/provisioning/{connection}', [DatabaseProvisioningController::class, 'browse'])->name('provisioning.browse');
+    Route::get('/provisioning', [DatabaseProvisioningController::class, 'index'])->middleware('can:provisioning.view')->name('provisioning.index');
+    Route::get('/provisioning/create', [DatabaseProvisioningController::class, 'create'])->middleware('can:provisioning.create')->name('provisioning.create');
+    Route::post('/provisioning', [DatabaseProvisioningController::class, 'store'])->middleware('can:provisioning.create')->name('provisioning.store');
+    Route::get('/provisioning/{connection}/edit', [DatabaseProvisioningController::class, 'edit'])->middleware('can:provisioning.update')->name('provisioning.edit');
+    Route::put('/provisioning/{connection}', [DatabaseProvisioningController::class, 'update'])->middleware('can:provisioning.update')->name('provisioning.update');
+    Route::delete('/provisioning/{connection}', [DatabaseProvisioningController::class, 'destroy'])->middleware('can:provisioning.delete')->name('provisioning.destroy');
+    Route::post('/provisioning/{connection}/test', [DatabaseProvisioningController::class, 'test'])->middleware('can:provisioning.create')->name('provisioning.test');
+    Route::get('/provisioning/{connection}', [DatabaseProvisioningController::class, 'browse'])->middleware('can:provisioning.view')->name('provisioning.browse');
 
-    Route::get('/reports/download', [ReportController::class, 'download'])->name('reports.download');
-    Route::post('/reports/queue', [ReportController::class, 'queue'])->name('reports.queue');
+    Route::get('/reports/download', [ReportController::class, 'download'])->middleware('can:reports.export')->name('reports.download');
+    Route::post('/reports/queue', [ReportController::class, 'queue'])->middleware('can:reports.export')->name('reports.queue');
 
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('/settings', [SettingsController::class, 'index'])->middleware('can:settings.view')->name('settings.index');
+    Route::patch('/settings', [SettingsController::class, 'update'])->middleware('can:settings.manage')->name('settings.update');
+
+    Route::resource('users', UserController::class)->except(['show'])->middleware('can:users.manage');
 });

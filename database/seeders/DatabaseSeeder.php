@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        $admin->assignRole('admin');
+        $admin->syncRoles(['Owner']);
 
         ApplicationSetting::query()->firstOrCreate([], [
             'server_name' => 'DevCraft Labs',

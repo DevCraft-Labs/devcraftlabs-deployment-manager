@@ -22,6 +22,7 @@ use App\Services\ProvisioningDatabaseService;
 use App\Services\RedisConnectionService;
 use App\Services\SmtpService;
 use App\Services\TelegramService;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -49,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::before(static function (User $user): ?bool {
+            return $user->hasRole('Owner') ? true : null;
+        });
+
         Gate::policy(DeploymentScript::class, DeploymentScriptPolicy::class);
     }
 }

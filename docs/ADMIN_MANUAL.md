@@ -6,6 +6,13 @@
 3. Rotate admin password.
 4. Create production API token and disable default token.
 
+## RBAC Roles
+- **Owner**: unrestricted access, including user management, settings, API management, and destructive actions.
+- **Developer**: can view, create, update, run, execute tests, configure cron jobs, and export reports. Developers cannot delete resources, manage users, or change global settings/API configuration.
+- **Viewer**: read-only access to dashboards, scripts, connection profiles, deployment logs, cron schedules, settings, and the database schema explorer.
+
+Run `php artisan db:seed --class=RolePermissionSeeder` after deploying this change to apply the three roles and their permissions. The standard `DatabaseSeeder` maps the seeded administrator to **Owner**.
+
 ## Security Checklist
 - Enforce HTTPS.
 - Restrict webhook endpoint access by secret and known telegram sources.

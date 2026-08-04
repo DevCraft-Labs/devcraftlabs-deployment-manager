@@ -18,17 +18,16 @@
 <body x-init="$watch('darkMode', value => localStorage.setItem('dark_mode', value ? '1' : '0'))">
 <div class="d-flex">
     <aside class="sidebar text-white p-3" style="background:#102a43;">
-        <h4 class="fw-bold">DevCraft Labs</h4>
+        <h4 class="fw-bold">{{ config('app.name', 'Laravel') }}</h4>
         <p class="small text-info">CPanel Deployment Manager</p>
         <nav class="nav flex-column gap-2">
-            <a class="nav-link text-white" href="{{ route('dashboard') }}">Dashboard</a>
-            <a class="nav-link text-white" href="{{ route('deployment-scripts.index') }}">Deployment Scripts</a>
-            <a class="nav-link text-white" href="{{ route('cron.index') }}">Cron Manager</a>
-            <a class="nav-link text-white" href="{{ route('redis-profiles.index') }}">Redis Manager</a>
-            <a class="nav-link text-white" href="{{ route('smtp-profiles.index') }}">SMTP Manager</a>
-            <a class="nav-link text-white" href="{{ route('telegram-connections.index') }}">Telegram Manager</a>
-            <a class="nav-link text-white" href="{{ route('provisioning.index') }}">DB Provisioning</a>
-            <a class="nav-link text-white" href="{{ route('settings.index') }}">Settings</a>
+            @can('dashboard.view')<a class="nav-link text-white" href="{{ route('dashboard') }}">Dashboard</a>@endcan
+            @can('scripts.view')<a class="nav-link text-white" href="{{ route('deployment-scripts.index') }}">Deployment Scripts</a>@endcan
+            @can('cron.view')<a class="nav-link text-white" href="{{ route('cron.index') }}">Cron Manager</a>@endcan
+            @can('connections.view')<a class="nav-link text-white" href="{{ route('redis-profiles.index') }}">Redis Manager</a><a class="nav-link text-white" href="{{ route('smtp-profiles.index') }}">SMTP Manager</a><a class="nav-link text-white" href="{{ route('telegram-connections.index') }}">Telegram Manager</a>@endcan
+            @can('provisioning.view')<a class="nav-link text-white" href="{{ route('provisioning.index') }}">DB Provisioning</a>@endcan
+            @can('settings.view')<a class="nav-link text-white" href="{{ route('settings.index') }}">Settings</a>@endcan
+            @can('users.manage')<a class="nav-link text-white" href="{{ route('users.index') }}">User Management</a>@endcan
         </nav>
     </aside>
     <main class="main-panel flex-grow-1 p-4">

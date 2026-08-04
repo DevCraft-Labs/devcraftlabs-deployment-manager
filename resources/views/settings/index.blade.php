@@ -11,10 +11,12 @@
 <div class="col-md-3"><label class="form-label">Retention Days</label><input class="form-control" type="number" name="retention_days" value="{{ old('retention_days', $setting->retention_days) }}"></div>
 <div class="col-md-3 form-check mt-5 ms-3"><input class="form-check-input" type="checkbox" name="log_cleanup" value="1" @checked($setting->log_cleanup)><label class="form-check-label">Enable Log Cleanup</label></div>
 </div>
-<button class="btn btn-primary">Save Settings</button>
+@can('settings.manage')<button class="btn btn-primary">Save Settings</button>@else<button class="btn btn-secondary" disabled>Read-only access</button>@endcan
 </form>
 <div class="mt-4 d-flex gap-2">
+    @can('reports.export')
     <a class="btn btn-success" href="{{ route('reports.download') }}">Download XLSX Report</a>
     <form method="POST" action="{{ route('reports.queue') }}">@csrf<button class="btn btn-outline-success">Queue XLSX Generation</button></form>
+    @endcan
 </div>
 @endsection

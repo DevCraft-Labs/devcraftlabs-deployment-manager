@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\DB;
 
 class ProvisioningDatabaseService implements ProvisioningDatabaseServiceInterface
 {
+    private function identifier(string $value): string
+    {
+        if (!preg_match('/^[A-Za-z0-9$_]+$/', $value)) {
+            throw new \InvalidArgumentException('Invalid database identifier.');
+        }
+
+        return sprintf('`%s`', $value);
+    }
+
     private function configureConnection(ProvisioningDatabaseConnection $connection, ?string $database = null): void
     {
         config()->set('database.connections.provisioning_runtime', [
@@ -53,9 +62,10 @@ class ProvisioningDatabaseService implements ProvisioningDatabaseServiceInterfac
     public function describeTable(ProvisioningDatabaseConnection $connection, string $database, string $table): array
     {
         $this->configureConnection($connection, $database);
+        $table = $this->identifier($table);
 
-        $columns = DB::connection('provisioning_runtime')->select("SHOW COLUMNS FROM `{$table}`");
-        $indexes = DB::connection('provisioning_runtime')->select("SHOW INDEXES FROM `{$table}`");
+        $columns = DB::connection('provisioning_runtime')->select("SHOW COLUMNS FROM {$table}");
+        $indexes = DB::connection('provisioning_runtime')->select("SHOW INDEXES FROM {$table}");
 
         return [
             'columns' => $columns,

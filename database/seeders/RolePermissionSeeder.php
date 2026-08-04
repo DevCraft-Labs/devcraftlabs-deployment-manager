@@ -11,12 +11,27 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            'dashboard.view',
+            'users.manage',
             'scripts.view',
             'scripts.create',
             'scripts.update',
             'scripts.delete',
-            'connections.manage',
+            'scripts.run',
+            'connections.view',
+            'connections.create',
+            'connections.update',
+            'connections.delete',
+            'connections.test',
+            'deployments.view',
+            'cron.view',
+            'cron.update',
+            'provisioning.view',
+            'provisioning.create',
+            'provisioning.update',
+            'provisioning.delete',
             'reports.export',
+            'settings.view',
             'settings.manage',
             'api.manage',
         ];
@@ -25,10 +40,41 @@ class RolePermissionSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        $admin = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-        $admin->syncPermissions($permissions);
+        $owner = Role::query()->firstOrCreate(['name' => 'Owner', 'guard_name' => 'web']);
+        $owner->syncPermissions($permissions);
 
-        $operator = Role::query()->firstOrCreate(['name' => 'operator', 'guard_name' => 'web']);
-        $operator->syncPermissions(['scripts.view', 'scripts.create', 'scripts.update', 'reports.export']);
+        $developer = Role::query()->firstOrCreate(['name' => 'Developer', 'guard_name' => 'web']);
+        $developer->syncPermissions([
+            'dashboard.view',
+            'scripts.view',
+            'scripts.create',
+            'scripts.update',
+            'scripts.run',
+            'connections.view',
+            'connections.create',
+            'connections.update',
+            'connections.test',
+            'deployments.view',
+            'cron.view',
+            'cron.update',
+            'provisioning.view',
+            'provisioning.create',
+            'provisioning.update',
+            'reports.export',
+            'settings.view',
+        ]);
+
+        $viewer = Role::query()->firstOrCreate(['name' => 'Viewer', 'guard_name' => 'web']);
+        $viewer->syncPermissions([
+            'dashboard.view',
+            'scripts.view',
+            'connections.view',
+            'deployments.view',
+            'cron.view',
+            'provisioning.view',
+            'settings.view',
+        ]);
+
+        Role::query()->whereIn('name', ['admin', 'operator'])->delete();
     }
 }

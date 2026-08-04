@@ -10,6 +10,8 @@ Production-ready Laravel 13 deployment automation platform for cPanel/shared hos
 
 ## Functional Coverage
 - Username/password authentication
+- RBAC: Owner (full access), Developer (create/update/run/test without deletion), Viewer (read-only)
+- Owner-only user management CRUD
 - Redis connection manager with SET/GET/TTL/DELETE verification
 - SMTP manager with test mail dispatch
 - Telegram connection manager and webhook commands
@@ -54,3 +56,5 @@ See `docs/INSTALLATION_GUIDE.md`.
 - Password: `admin12345`
 
 Change credentials immediately for production environments.
+
+After updating an existing installation, apply RBAC records with `php artisan db:seed --class=RolePermissionSeeder`.
