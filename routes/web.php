@@ -29,26 +29,26 @@ Route::post('/telegram/webhook', [TelegramWebhookController::class, 'handle'])
 Route::middleware('auth')->group(function (): void {
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
 
-    Route::resource('redis-profiles', RedisProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
     Route::resource('redis-profiles', RedisProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
+    Route::resource('redis-profiles', RedisProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
     Route::resource('redis-profiles', RedisProfileController::class)->only(['edit', 'update'])->middleware('can:connections.update');
     Route::delete('/redis-profiles/{redisProfile}', [RedisProfileController::class, 'destroy'])->middleware('can:connections.delete')->name('redis-profiles.destroy');
     Route::post('/redis-profiles/{redisProfile}/test', [RedisProfileController::class, 'test'])->middleware('can:connections.test')->name('redis-profiles.test');
 
-    Route::resource('smtp-profiles', SmtpProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
     Route::resource('smtp-profiles', SmtpProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
+    Route::resource('smtp-profiles', SmtpProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
     Route::resource('smtp-profiles', SmtpProfileController::class)->only(['edit', 'update'])->middleware('can:connections.update');
     Route::delete('/smtp-profiles/{smtpProfile}', [SmtpProfileController::class, 'destroy'])->middleware('can:connections.delete')->name('smtp-profiles.destroy');
     Route::post('/smtp-profiles/{smtpProfile}/test', [SmtpProfileController::class, 'test'])->middleware('can:connections.test')->name('smtp-profiles.test');
 
-    Route::resource('telegram-connections', TelegramConnectionController::class)->only(['index', 'show'])->middleware('can:connections.view');
     Route::resource('telegram-connections', TelegramConnectionController::class)->only(['create', 'store'])->middleware('can:connections.create');
+    Route::resource('telegram-connections', TelegramConnectionController::class)->only(['index', 'show'])->middleware('can:connections.view');
     Route::resource('telegram-connections', TelegramConnectionController::class)->only(['edit', 'update'])->middleware('can:connections.update');
     Route::delete('/telegram-connections/{telegramConnection}', [TelegramConnectionController::class, 'destroy'])->middleware('can:connections.delete')->name('telegram-connections.destroy');
     Route::post('/telegram-connections/{telegramConnection}/test', [TelegramConnectionController::class, 'test'])->middleware('can:connections.test')->name('telegram-connections.test');
 
-    Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['index', 'show'])->middleware('can:scripts.view');
     Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['create', 'store'])->middleware('can:scripts.create');
+    Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['index', 'show'])->middleware('can:scripts.view');
     Route::resource('deployment-scripts', DeploymentScriptController::class)->only(['edit', 'update'])->middleware('can:scripts.update');
     Route::delete('/deployment-scripts/{deploymentScript}', [DeploymentScriptController::class, 'destroy'])->middleware('can:scripts.delete')->name('deployment-scripts.destroy');
     Route::post('/deployment-scripts/{deploymentScript}/run', [DeploymentScriptController::class, 'run'])->middleware('can:scripts.run')->name('deployment-scripts.run');
