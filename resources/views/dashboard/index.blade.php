@@ -6,6 +6,7 @@
     <div class="col-md-3"><div class="card"><div class="card-body"><h6>Active Cronjobs</h6><h3>{{ $activeCronjobs }}</h3></div></div></div>
     <div class="col-md-3"><div class="card"><div class="card-body"><h6>Telegram Connections</h6><h3>{{ $totalTelegramConnections }}</h3></div></div></div>
     <div class="col-md-3"><div class="card"><div class="card-body"><h6>Redis Connections</h6><h3>{{ $totalRedisConnections }}</h3></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><h6>Active Deployments</h6><h3>{{ $activeDeploymentCount }}</h3><a class="small" href="{{ route('deployments.queue') }}">View queue</a></div></div></div>
 </div>
 <div class="card">
     <div class="card-header">Recent Activity</div>

@@ -14,6 +14,12 @@
 ## Run Script
 1. From script list click Run.
 2. Monitor execution logs from script detail page.
+3. When complete, the selected script Telegram connection is notified. If no connection is selected for the script, the active default Telegram notification channel in Settings is used.
+
+## Configure Deployment Notifications
+1. Create and test a Telegram connection in Telegram Manager. Its chat ID can be a Telegram channel ID.
+2. In Settings, select it as the Default Telegram Notification Channel.
+3. Optionally assign a different Telegram connection to an individual deployment script to override the default.
 
 ## Configure Cron
 1. Open Cron Manager.

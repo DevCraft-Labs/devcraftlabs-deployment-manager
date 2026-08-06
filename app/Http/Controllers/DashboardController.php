@@ -18,12 +18,14 @@ class DashboardController extends Controller
         $lastFailed = DeploymentExecution::query()->where('is_success', false)->latest('started_at')->first();
         $lastSuccess = DeploymentExecution::query()->where('is_success', true)->latest('started_at')->first();
         $activeCron = DeploymentScript::query()->where('cron_enabled', true)->count();
+        $activeDeploymentCount = DeploymentExecution::query()->whereIn('status', ['queued', 'running'])->count();
 
         return view('dashboard.index', [
             'lastDeployment' => $lastDeployment,
             'lastFailed' => $lastFailed,
             'lastSuccess' => $lastSuccess,
             'activeCronjobs' => $activeCron,
+            'activeDeploymentCount' => $activeDeploymentCount,
             'totalScripts' => DeploymentScript::query()->count(),
             'totalTelegramConnections' => TelegramConnection::query()->count(),
             'totalSmtpConnections' => SmtpProfile::query()->count(),

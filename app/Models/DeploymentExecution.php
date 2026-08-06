@@ -15,6 +15,7 @@ class DeploymentExecution extends Model
         'deployment_script_id',
         'triggered_by_user_id',
         'triggered_via',
+        'status',
         'started_at',
         'finished_at',
         'duration_ms',

@@ -5,6 +5,7 @@ use App\Http\Controllers\CronManagerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatabaseProvisioningController;
 use App\Http\Controllers\DeploymentRunController;
+use App\Http\Controllers\DeploymentQueueController;
 use App\Http\Controllers\DeploymentScriptController;
 use App\Http\Controllers\RedisProfileController;
 use App\Http\Controllers\ReportController;
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/deployment-scripts/{deploymentScript}/toggle', [DeploymentScriptController::class, 'toggle'])->middleware('can:scripts.update')->name('deployment-scripts.toggle');
 
     Route::get('/deployments/{execution}/logs', [DeploymentRunController::class, 'logs'])->middleware('can:deployments.view')->name('deployments.logs');
+    Route::get('/deployment-queue', [DeploymentQueueController::class, 'index'])->middleware('can:deployments.view')->name('deployments.queue');
 
     Route::get('/cron', [CronManagerController::class, 'index'])->middleware('can:cron.view')->name('cron.index');
     Route::patch('/cron/{deploymentScript}', [CronManagerController::class, 'update'])->middleware('can:cron.update')->name('cron.update');

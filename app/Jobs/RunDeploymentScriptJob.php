@@ -3,10 +3,12 @@
 namespace App\Jobs;
 
 use App\Contracts\Services\DeploymentServiceInterface;
+use App\Models\DeploymentExecution;
 use App\Models\DeploymentScript;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Throwable;
 
 class RunDeploymentScriptJob implements ShouldQueue
 {
@@ -19,6 +21,7 @@ class RunDeploymentScriptJob implements ShouldQueue
         private readonly int $scriptId,
         private readonly ?int $userId,
         private readonly string $triggeredVia,
+        private readonly int $executionId,
     ) {
     }
 
@@ -29,7 +32,18 @@ class RunDeploymentScriptJob implements ShouldQueue
     {
         $script = DeploymentScript::query()->findOrFail($this->scriptId);
         $user = $this->userId ? User::query()->find($this->userId) : null;
+        $execution = DeploymentExecution::query()->findOrFail($this->executionId);
 
-        $deploymentService->execute($script, $user, $this->triggeredVia);
+        $deploymentService->execute($script, $user, $this->triggeredVia, $execution);
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        DeploymentExecution::query()->whereKey($this->executionId)->update([
+            'status' => 'failed',
+            'is_success' => false,
+            'finished_at' => now(),
+            'stderr' => $exception->getMessage(),
+        ]);
     }
 }

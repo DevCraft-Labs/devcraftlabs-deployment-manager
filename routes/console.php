@@ -1,6 +1,6 @@
 <?php
 
-use App\Jobs\RunDeploymentScriptJob;
+use App\Contracts\Services\DeploymentServiceInterface;
 use App\Models\DeploymentScript;
 use Cron\CronExpression;
 use Illuminate\Foundation\Inspiring;
@@ -19,7 +19,7 @@ Schedule::call(function (): void {
         ->get()
         ->each(function (DeploymentScript $script): void {
             if (CronExpression::factory($script->cron_expression)->isDue()) {
-                RunDeploymentScriptJob::dispatch($script->id, null, 'cron');
+                app(DeploymentServiceInterface::class)->queue($script, null, 'cron');
             }
         });
 })->everyMinute()->name('deployment-cron-dispatcher');

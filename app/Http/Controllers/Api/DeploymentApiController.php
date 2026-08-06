@@ -33,9 +33,13 @@ class DeploymentApiController extends Controller
 
     public function deploy(RunDeployRequest $request, DeploymentScript $script): JsonResponse
     {
-        $this->deploymentService->queue($script, Auth::user(), $request->input('triggered_via', 'api'));
+        $execution = $this->deploymentService->queue($script, Auth::user(), $request->input('triggered_via', 'api'));
 
-        return response()->json(['message' => 'Deployment queued.']);
+        return response()->json([
+            'message' => 'Deployment queued.',
+            'execution_id' => $execution->id,
+            'status' => $execution->status,
+        ]);
     }
 
     public function history(): JsonResponse
