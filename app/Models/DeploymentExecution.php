@@ -23,6 +23,7 @@ class DeploymentExecution extends Model
         'is_success',
         'stdout',
         'stderr',
+        'failure_report',
     ];
 
     protected function casts(): array

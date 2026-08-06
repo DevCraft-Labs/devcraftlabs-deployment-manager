@@ -71,7 +71,7 @@ class DeploymentService implements DeploymentServiceInterface
             $duration = (int) round((microtime(true) - $started) * 1000);
             $isSuccess = $process->isSuccessful();
 
-            $this->executionRepository->update($execution, [
+            $execution = $this->executionRepository->update($execution, [
                 'finished_at' => $finishedAt,
                 'duration_ms' => $duration,
                 'exit_code' => $process->getExitCode(),
@@ -79,6 +79,14 @@ class DeploymentService implements DeploymentServiceInterface
                 'status' => $isSuccess ? 'succeeded' : 'failed',
                 'stdout' => $process->getOutput(),
                 'stderr' => $process->getErrorOutput(),
+                'failure_report' => $isSuccess ? null : $this->buildFailureReport(
+                    $execution,
+                    $script,
+                    $finishedAt,
+                    $duration,
+                    $process->getExitCode(),
+                    $process->getErrorOutput(),
+                ),
             ]);
 
             Log::channel('deployment')->info('Deployment executed', [
@@ -101,12 +109,13 @@ class DeploymentService implements DeploymentServiceInterface
         } catch (Throwable $e) {
             $duration = (int) round((microtime(true) - $started) * 1000);
 
-            $this->executionRepository->update($execution, [
+            $execution = $this->executionRepository->update($execution, [
                 'finished_at' => now(),
                 'duration_ms' => $duration,
                 'is_success' => false,
                 'status' => 'failed',
                 'stderr' => $e->getMessage(),
+                'failure_report' => $this->buildFailureReport($execution, $script, now(), $duration, null, $e->getMessage()),
             ]);
 
             Log::channel('deployment')->error('Deployment failed unexpectedly', [
@@ -144,6 +153,27 @@ class DeploymentService implements DeploymentServiceInterface
             $exitCode,
             $execution->id,
         ));
+    }
+
+    private function buildFailureReport(DeploymentExecution $execution, DeploymentScript $script, $finishedAt, int $duration, ?int $exitCode, string $stderr): string
+    {
+        $reason = trim($stderr) !== ''
+            ? trim($stderr)
+            : 'The process exited with a non-zero status but did not provide standard error output.';
+
+        return implode("\n", [
+            'DEPLOYMENT FAILURE REPORT',
+            'Execution ID: ' . $execution->id,
+            'Script: ' . $script->name,
+            'Working directory: ' . $script->working_directory,
+            'Triggered via: ' . $execution->triggered_via,
+            'Finished at: ' . $finishedAt->toDateTimeString(),
+            'Duration: ' . $duration . ' ms',
+            'Exit code: ' . ($exitCode === null ? 'unavailable' : $exitCode),
+            '',
+            'Failure reason:',
+            $reason,
+        ]);
     }
 
     private function escapeTelegramMarkdown(string $value): string

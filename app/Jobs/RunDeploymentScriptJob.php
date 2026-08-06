@@ -44,6 +44,7 @@ class RunDeploymentScriptJob implements ShouldQueue
             'is_success' => false,
             'finished_at' => now(),
             'stderr' => $exception->getMessage(),
+            'failure_report' => "DEPLOYMENT FAILURE REPORT\nExecution ID: {$this->executionId}\n\nFailure reason:\n{$exception->getMessage()}",
         ]);
     }
 }

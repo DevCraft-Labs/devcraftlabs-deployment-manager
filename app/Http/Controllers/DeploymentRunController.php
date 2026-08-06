@@ -9,7 +9,9 @@ class DeploymentRunController extends Controller
 {
     public function logs(DeploymentExecution $execution): StreamedResponse
     {
-        $content = "STDOUT\n" . ($execution->stdout ?? '') . "\n\nSTDERR\n" . ($execution->stderr ?? '');
+        $content = "FAILURE REPORT\n" . ($execution->failure_report ?? 'No failure report was generated.')
+            . "\n\nSTDOUT\n" . ($execution->stdout ?? '')
+            . "\n\nSTDERR\n" . ($execution->stderr ?? '');
 
         return response()->streamDownload(static function () use ($content): void {
             echo $content;
