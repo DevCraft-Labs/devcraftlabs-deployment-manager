@@ -63,7 +63,8 @@ class DeploymentService implements DeploymentServiceInterface
         $started = microtime(true);
 
         try {
-            $process = Process::fromShellCommandline($script->script_content, $script->working_directory);
+            $shellScript = str_replace(["\r\n", "\r"], "\n", $script->script_content);
+            $process = Process::fromShellCommandline($shellScript, $script->working_directory);
             $process->setTimeout($script->timeout);
             $process->run();
 
