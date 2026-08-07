@@ -12,7 +12,7 @@
         <div class="col-lg-4">
             <div class="card shadow-lg border-0">
                 <div class="card-body p-4">
-                    <h4 class="text-center mb-3">{{ env('APP_URL') }}</h4>
+                    <h4 class="text-center mb-3">{{ env('APP_NAME') }}</h4>
                     <p class="text-center text-muted">CPanel Deployment Manager</p>
                     <form method="POST" action="{{ route('login.attempt') }}">
                         @csrf
