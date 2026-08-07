@@ -12,6 +12,7 @@ use App\Models\SmtpProfile;
 use App\Models\TelegramConnection;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -124,5 +125,27 @@ class DeploymentScriptController extends Controller
         $this->auditLogger->log('script.toggle', DeploymentScript::class, $deploymentScript->id, ['active' => $deploymentScript->active]);
 
         return back()->with('status', 'Script state updated.');
+    }
+
+    public function downloadApplicationLogs(DeploymentScript $deploymentScript): BinaryFileResponse
+    {
+        $logDirectory = $deploymentScript->log_directory ?: rtrim($deploymentScript->working_directory, '/\\') . '/storage/logs';
+        $realDirectory = realpath($logDirectory);
+
+        abort_unless($realDirectory && is_dir($realDirectory) && is_readable($realDirectory), 404, 'Configured application log directory is unavailable.');
+
+        $archivePath = storage_path('app/deployment-logs-' . $deploymentScript->id . '-' . now()->format('YmdHis') . '.zip');
+        $archive = new \ZipArchive();
+        abort_unless($archive->open($archivePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true, 500, 'Unable to prepare application log archive.');
+
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($realDirectory, \FilesystemIterator::SKIP_DOTS)) as $file) {
+            if ($file->isFile() && $file->isReadable()) {
+                $archive->addFile($file->getPathname(), ltrim(str_replace($realDirectory, '', $file->getPathname()), DIRECTORY_SEPARATOR));
+            }
+        }
+
+        $archive->close();
+
+        return response()->download($archivePath, $deploymentScript->name . '-application-logs.zip')->deleteFileAfterSend();
     }
 }

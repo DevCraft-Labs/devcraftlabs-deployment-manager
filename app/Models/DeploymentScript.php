@@ -16,6 +16,8 @@ class DeploymentScript extends Model
         'name',
         'description',
         'working_directory',
+        'health_check_url',
+        'log_directory',
         'script_content',
         'timeout',
         'telegram_connection_id',

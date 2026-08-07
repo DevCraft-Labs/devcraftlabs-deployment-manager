@@ -28,6 +28,8 @@ class UpdateDeploymentScriptRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', 'unique:deployment_scripts,name,' . $id],
             'description' => ['nullable', 'string'],
             'working_directory' => ['required', 'string', 'max:500'],
+            'health_check_url' => ['nullable', 'url:http,https', 'max:2048'],
+            'log_directory' => ['nullable', 'string', 'max:500'],
             'script_content' => ['required', 'string'],
             'timeout' => ['required', 'integer', 'min:10', 'max:3600'],
             'telegram_connection_id' => ['nullable', 'integer', 'exists:telegram_connections,id'],

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ClipboardController;
 use App\Http\Controllers\CronManagerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DatabaseProvisioningController;
@@ -26,6 +27,12 @@ Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')-
 Route::post('/telegram/webhook', [TelegramWebhookController::class, 'handle'])
     ->middleware('telegram.secret')
     ->name('telegram.webhook');
+
+Route::get('/clipboard', [ClipboardController::class, 'create'])->name('clipboard.create');
+Route::post('/clipboard', [ClipboardController::class, 'store'])->middleware('throttle:20,1')->name('clipboard.store');
+Route::get('/clipboard/{clipboard}', [ClipboardController::class, 'show'])->where('clipboard', '[a-f0-9]{32}')->name('clipboard.show');
+Route::put('/clipboard/{clipboard}', [ClipboardController::class, 'update'])->middleware('throttle:30,1')->where('clipboard', '[a-f0-9]{32}')->name('clipboard.update');
+Route::delete('/clipboard/{clipboard}', [ClipboardController::class, 'destroy'])->middleware('throttle:30,1')->where('clipboard', '[a-f0-9]{32}')->name('clipboard.destroy');
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
@@ -55,6 +62,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/deployment-scripts/{deploymentScript}/run', [DeploymentScriptController::class, 'run'])->middleware('can:scripts.run')->name('deployment-scripts.run');
     Route::post('/deployment-scripts/{deploymentScript}/duplicate', [DeploymentScriptController::class, 'duplicate'])->middleware('can:scripts.create')->name('deployment-scripts.duplicate');
     Route::post('/deployment-scripts/{deploymentScript}/toggle', [DeploymentScriptController::class, 'toggle'])->middleware('can:scripts.update')->name('deployment-scripts.toggle');
+    Route::get('/deployment-scripts/{deploymentScript}/application-logs', [DeploymentScriptController::class, 'downloadApplicationLogs'])->middleware('can:deployments.view')->name('deployment-scripts.application-logs');
 
     Route::get('/deployments/{execution}/logs', [DeploymentRunController::class, 'logs'])->middleware('can:deployments.view')->name('deployments.logs');
     Route::get('/deployment-queue', [DeploymentQueueController::class, 'index'])->middleware('can:deployments.view')->name('deployments.queue');

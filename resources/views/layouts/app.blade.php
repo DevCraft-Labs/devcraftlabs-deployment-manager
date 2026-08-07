@@ -23,7 +23,7 @@
         <nav class="nav flex-column gap-2">
             @can('dashboard.view')<a class="nav-link text-white" href="{{ route('dashboard') }}">Dashboard</a>@endcan
             @can('scripts.view')<a class="nav-link text-white" href="{{ route('deployment-scripts.index') }}">Deployment Scripts</a>@endcan
-            @can('deployments.view')<a class="nav-link text-white" href="{{ route('deployments.queue') }}">Deployment Queue</a>@endcan
+            @can('deployments.view')<a class="nav-link text-white" href="{{ route('deployments.queue') }}">Deployments</a>@endcan
             @can('cron.view')<a class="nav-link text-white" href="{{ route('cron.index') }}">Cron Manager</a>@endcan
             @can('connections.view')<a class="nav-link text-white" href="{{ route('redis-profiles.index') }}">Redis Manager</a><a class="nav-link text-white" href="{{ route('smtp-profiles.index') }}">SMTP Manager</a><a class="nav-link text-white" href="{{ route('telegram-connections.index') }}">Telegram Manager</a>@endcan
             @can('provisioning.view')<a class="nav-link text-white" href="{{ route('provisioning.index') }}">DB Provisioning</a>@endcan

@@ -11,6 +11,7 @@ use App\Contracts\Services\ProvisioningDatabaseServiceInterface;
 use App\Contracts\Services\RedisConnectionServiceInterface;
 use App\Contracts\Services\SmtpServiceInterface;
 use App\Contracts\Services\TelegramServiceInterface;
+use App\Contracts\Services\TemporaryClipboardServiceInterface;
 use App\Models\DeploymentScript;
 use App\Policies\DeploymentScriptPolicy;
 use App\Repositories\DeploymentExecutionRepository;
@@ -22,6 +23,7 @@ use App\Services\ProvisioningDatabaseService;
 use App\Services\RedisConnectionService;
 use App\Services\SmtpService;
 use App\Services\TelegramService;
+use App\Services\TemporaryClipboardService;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RedisConnectionServiceInterface::class, RedisConnectionService::class);
         $this->app->bind(SmtpServiceInterface::class, SmtpService::class);
         $this->app->bind(TelegramServiceInterface::class, TelegramService::class);
+        $this->app->bind(TemporaryClipboardServiceInterface::class, TemporaryClipboardService::class);
         $this->app->bind(ProvisioningDatabaseServiceInterface::class, ProvisioningDatabaseService::class);
         $this->app->bind(DeploymentReportServiceInterface::class, DeploymentReportService::class);
     }
