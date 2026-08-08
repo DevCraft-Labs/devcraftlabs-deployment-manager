@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'DevCraft Labs CPanel Deployment Manager') }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/devcraft-labs-logo.svg') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: radial-gradient(circle at 10% 20%, #102a43 0%, #243b53 35%, #f0f4f8 35%); min-height: 100vh; }
@@ -18,12 +19,12 @@
 <body x-init="$watch('darkMode', value => localStorage.setItem('dark_mode', value ? '1' : '0'))">
 <div class="d-flex">
     <aside class="sidebar text-white p-3" style="background:#102a43;">
-        <h4 class="fw-bold">{{ config('app.name', 'Laravel') }}</h4>
-        <p class="small text-info">CPanel Deployment Manager</p>
+        <div class="d-flex align-items-center gap-2 mb-3"><img src="{{ asset('images/devcraft-labs-logo.svg') }}" width="46" height="46" alt="DevCraft Labs"><div><h4 class="fw-bold mb-0">DevCraft Labs</h4><p class="small text-info mb-0">CPanel Deployment Manager</p></div></div>
         <nav class="nav flex-column gap-2">
             @can('dashboard.view')<a class="nav-link text-white" href="{{ route('dashboard') }}">Dashboard</a>@endcan
             @can('scripts.view')<a class="nav-link text-white" href="{{ route('deployment-scripts.index') }}">Deployment Scripts</a>@endcan
             @can('deployments.view')<a class="nav-link text-white" href="{{ route('deployments.queue') }}">Deployments</a>@endcan
+            @can('deployments.view')<a class="nav-link text-white" href="{{ route('monitoring.index') }}">Server Monitoring</a>@endcan
             @can('cron.view')<a class="nav-link text-white" href="{{ route('cron.index') }}">Cron Manager</a>@endcan
             @can('connections.view')<a class="nav-link text-white" href="{{ route('redis-profiles.index') }}">Redis Manager</a><a class="nav-link text-white" href="{{ route('smtp-profiles.index') }}">SMTP Manager</a><a class="nav-link text-white" href="{{ route('telegram-connections.index') }}">Telegram Manager</a>@endcan
             @can('provisioning.view')<a class="nav-link text-white" href="{{ route('provisioning.index') }}">DB Provisioning</a>@endcan

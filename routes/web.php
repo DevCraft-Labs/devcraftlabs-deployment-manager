@@ -11,6 +11,7 @@ use App\Http\Controllers\DeploymentScriptController;
 use App\Http\Controllers\RedisProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ServerMonitoringController;
 use App\Http\Controllers\SmtpProfileController;
 use App\Http\Controllers\TelegramConnectionController;
 use App\Http\Controllers\TelegramWebhookController;
@@ -36,6 +37,7 @@ Route::delete('/clipboard/{clipboard}', [ClipboardController::class, 'destroy'])
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
+    Route::get('/server-monitoring', [ServerMonitoringController::class, 'index'])->middleware('can:deployments.view')->name('monitoring.index');
 
     Route::resource('redis-profiles', RedisProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
     Route::resource('redis-profiles', RedisProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');

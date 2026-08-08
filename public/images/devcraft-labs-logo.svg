@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">DevCraft Labs</title><desc id="desc">DevCraft Labs geometric purple crystal logo</desc>
+  <rect width="400" height="400" rx="56" fill="#0c081b"/>
+  <g stroke="#554285" stroke-width="1" opacity=".8"><path d="M80 0v400M160 0v400M240 0v400M320 0v400M0 80h400M0 160h400M0 240h400M0 320h400"/></g>
+  <g transform="translate(200 77)"><path fill="#c0aaff" d="M0 0 70 69 0 110-70 69z"/><path fill="#9c7bea" d="M-70 69 0 110 0 160-70 132z"/><path fill="#7850dd" d="M70 69 0 110 0 160 70 132z"/><path fill="#5b1bc8" d="M-70 132 0 160 0 235-70 132z"/><path fill="#6924d0" d="M70 132 0 160 0 235 70 132z"/><path fill="#a78bea" d="M-70 69 0 0 0 110z"/></g>
+  <g fill="#a781ff"><circle cx="44" cy="44" r="4"/><circle cx="356" cy="44" r="4"/><circle cx="44" cy="356" r="4"/><circle cx="356" cy="356" r="4"/></g>
+  <text x="200" y="367" fill="#ad8aff" font-family="Arial, sans-serif" font-size="23" font-weight="700" text-anchor="middle">DEVCRAFT</text><text x="200" y="386" fill="#ad8aff" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="3" text-anchor="middle">LABS</text>
+</svg>
