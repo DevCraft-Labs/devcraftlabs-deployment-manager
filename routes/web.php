@@ -44,6 +44,11 @@ Route::middleware('auth')->group(function (): void {
     Route::resource('redis-profiles', RedisProfileController::class)->only(['edit', 'update'])->middleware('can:connections.update');
     Route::delete('/redis-profiles/{redisProfile}', [RedisProfileController::class, 'destroy'])->middleware('can:connections.delete')->name('redis-profiles.destroy');
     Route::post('/redis-profiles/{redisProfile}/test', [RedisProfileController::class, 'test'])->middleware('can:connections.test')->name('redis-profiles.test');
+    Route::get('/redis-profiles/{redisProfile}/keys', [RedisProfileController::class, 'keys'])->middleware('can:connections.view')->name('redis-profiles.keys');
+    Route::get('/redis-profiles/{redisProfile}/keys/data', [RedisProfileController::class, 'keysData'])->middleware('can:connections.view')->name('redis-profiles.keys.data');
+    Route::get('/redis-profiles/{redisProfile}/keys/value', [RedisProfileController::class, 'keyShow'])->middleware('can:connections.view')->name('redis-profiles.keys.show');
+    Route::put('/redis-profiles/{redisProfile}/keys/value', [RedisProfileController::class, 'keyUpdate'])->middleware('can:connections.update')->name('redis-profiles.keys.update');
+    Route::delete('/redis-profiles/{redisProfile}/keys/value', [RedisProfileController::class, 'keyDestroy'])->middleware('can:connections.delete')->name('redis-profiles.keys.destroy');
 
     Route::resource('smtp-profiles', SmtpProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
     Route::resource('smtp-profiles', SmtpProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
