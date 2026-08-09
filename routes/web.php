@@ -8,6 +8,7 @@ use App\Http\Controllers\DatabaseProvisioningController;
 use App\Http\Controllers\DeploymentRunController;
 use App\Http\Controllers\DeploymentQueueController;
 use App\Http\Controllers\DeploymentScriptController;
+use App\Http\Controllers\FileClipboardController;
 use App\Http\Controllers\RedisProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
@@ -34,6 +35,12 @@ Route::post('/clipboard', [ClipboardController::class, 'store'])->middleware('th
 Route::get('/clipboard/{clipboard}', [ClipboardController::class, 'show'])->where('clipboard', '[a-f0-9]{32}')->name('clipboard.show');
 Route::put('/clipboard/{clipboard}', [ClipboardController::class, 'update'])->middleware('throttle:30,1')->where('clipboard', '[a-f0-9]{32}')->name('clipboard.update');
 Route::delete('/clipboard/{clipboard}', [ClipboardController::class, 'destroy'])->middleware('throttle:30,1')->where('clipboard', '[a-f0-9]{32}')->name('clipboard.destroy');
+
+Route::get('/file-clipboard', [FileClipboardController::class, 'create'])->name('file-clipboard.create');
+Route::post('/file-clipboard', [FileClipboardController::class, 'store'])->middleware('throttle:5,1')->name('file-clipboard.store');
+Route::get('/file-clipboard/{fileClipboard}', [FileClipboardController::class, 'show'])->where('fileClipboard', '[a-f0-9]{32}')->name('file-clipboard.show');
+Route::get('/file-clipboard/{fileClipboard}/download', [FileClipboardController::class, 'download'])->middleware('throttle:5,1')->where('fileClipboard', '[a-f0-9]{32}')->name('file-clipboard.download');
+Route::delete('/file-clipboard/{fileClipboard}', [FileClipboardController::class, 'destroy'])->middleware('throttle:5,1')->where('fileClipboard', '[a-f0-9]{32}')->name('file-clipboard.destroy');
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');

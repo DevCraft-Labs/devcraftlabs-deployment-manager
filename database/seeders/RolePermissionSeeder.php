@@ -76,5 +76,10 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         Role::query()->whereIn('name', ['admin', 'operator'])->delete();
+
+        // The file/text clipboard is a public, unauthenticated feature and
+        // never had a matching Gate check; drop the permission rows a prior
+        // version of this seeder created for it.
+        Permission::query()->where('name', 'like', 'clipboard.%')->delete();
     }
 }

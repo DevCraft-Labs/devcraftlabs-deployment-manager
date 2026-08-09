@@ -21,6 +21,7 @@
                 <div class="form-text">Maximum 100,000 characters. Data is stored only in Redis and is not saved to the database.</div>
                 <button class="btn btn-primary mt-3">Create temporary clipboard</button>
             </form>
+            <p class="text-secondary mt-3 mb-0"><a href="{{ route('file-clipboard.create') }}">Need to share a file instead?</a></p>
         </div>
     </div>
 </main>
