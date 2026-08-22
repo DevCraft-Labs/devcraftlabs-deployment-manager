@@ -1,15 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Temporary Clipboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<main class="container py-5" style="max-width: 850px;">
-    <div class="card shadow-sm">
-        <div class="card-body p-4">
+@extends('layouts.public')
+
+@section('title', 'Temporary Clipboard')
+
+@section('content')
             <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                 <div><h1 class="h3 mb-1">Temporary Clipboard</h1><p class="text-secondary mb-0">Expires in <strong id="expiry">{{ $entry['expires_in'] }}</strong> seconds. Updating restarts the five-minute lifetime.</p></div>
                 <a class="btn btn-outline-secondary" href="{{ route('clipboard.create') }}">New clipboard</a>
@@ -28,13 +21,11 @@
                 @method('DELETE')
                 <button class="btn btn-link text-danger p-0">Delete clipboard</button>
             </form>
-        </div>
-    </div>
-</main>
+@endsection
+@push('scripts')
 <script>
 const expiry = document.getElementById('expiry');
 const timer = setInterval(() => { const seconds = Math.max(0, Number(expiry.textContent) - 1); expiry.textContent = seconds; if (seconds === 0) { clearInterval(timer); window.location.reload(); } }, 1000);
 document.getElementById('copy').addEventListener('click', async () => { await navigator.clipboard.writeText(document.getElementById('content').value); document.getElementById('copy').textContent = 'Copied'; });
 </script>
-</body>
-</html>
+@endpush

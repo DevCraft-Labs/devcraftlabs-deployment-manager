@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trimStrings(except: ['contents']);
+
         $middleware->alias([
             'api.token' => \App\Http\Middleware\EnsureApiTokenIsValid::class,
             'telegram.secret' => \App\Http\Middleware\VerifyTelegramWebhookSecret::class,

@@ -11,6 +11,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Schedule::command('clipboard:prune-files')->everyFiveMinutes()->name('clipboard-file-pruner');
+
 Schedule::call(function (): void {
     DeploymentScript::query()
         ->where('active', true)

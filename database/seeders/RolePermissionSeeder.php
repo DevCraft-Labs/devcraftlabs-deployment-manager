@@ -30,6 +30,9 @@ class RolePermissionSeeder extends Seeder
             'provisioning.create',
             'provisioning.update',
             'provisioning.delete',
+            'provisioning.data.create',
+            'provisioning.data.update',
+            'provisioning.data.delete',
             'reports.export',
             'settings.view',
             'settings.manage',
@@ -60,6 +63,8 @@ class RolePermissionSeeder extends Seeder
             'provisioning.view',
             'provisioning.create',
             'provisioning.update',
+            'provisioning.data.create',
+            'provisioning.data.update',
             'reports.export',
             'settings.view',
         ]);
@@ -76,5 +81,10 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         Role::query()->whereIn('name', ['admin', 'operator'])->delete();
+
+        // The file/text clipboard is a public, unauthenticated feature and
+        // never had a matching Gate check; drop the permission rows a prior
+        // version of this seeder created for it.
+        Permission::query()->where('name', 'like', 'clipboard.%')->delete();
     }
 }

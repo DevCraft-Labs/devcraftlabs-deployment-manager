@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\Repositories\DeploymentScriptRepositoryInterface;
 use App\Contracts\Services\DeploymentServiceInterface;
+use App\Http\Requests\DeploymentScript\UpdateDeploymentEnvironmentRequest;
 use App\Http\Requests\DeploymentScript\StoreDeploymentScriptRequest;
 use App\Http\Requests\DeploymentScript\UpdateDeploymentScriptRequest;
 use App\Models\DeploymentScript;
@@ -147,5 +148,52 @@ class DeploymentScriptController extends Controller
         $archive->close();
 
         return response()->download($archivePath, $deploymentScript->name . '-application-logs.zip')->deleteFileAfterSend();
+    }
+
+    public function editEnvironment(DeploymentScript $deploymentScript): View
+    {
+        return view('scripts.environment', [
+            'script' => $deploymentScript,
+            'contents' => $this->environmentContents($deploymentScript),
+        ]);
+    }
+
+    public function updateEnvironment(UpdateDeploymentEnvironmentRequest $request, DeploymentScript $deploymentScript): RedirectResponse
+    {
+        $environmentPath = $this->environmentPath($deploymentScript, true);
+
+        abort_if(is_link($environmentPath), 403, 'Symbolic link environment files cannot be edited.');
+        abort_unless(file_put_contents($environmentPath, $request->validated('contents'), LOCK_EX) !== false, 500, 'Unable to save the environment file.');
+
+        $this->auditLogger->log('script.environment.update', DeploymentScript::class, $deploymentScript->id);
+
+        return redirect()->route('deployment-scripts.environment.edit', $deploymentScript)
+            ->with('status', 'Environment file saved.');
+    }
+
+    private function environmentContents(DeploymentScript $deploymentScript): string
+    {
+        $environmentPath = $this->environmentPath($deploymentScript);
+
+        abort_if(is_link($environmentPath), 403, 'Symbolic link environment files cannot be edited.');
+
+        if (!is_file($environmentPath)) {
+            return '';
+        }
+
+        $contents = file_get_contents($environmentPath);
+        abort_if($contents === false, 500, 'Unable to read the environment file.');
+
+        return $contents;
+    }
+
+    private function environmentPath(DeploymentScript $deploymentScript, bool $requireWritable = false): string
+    {
+        $directory = realpath($deploymentScript->working_directory);
+
+        abort_unless($directory !== false && is_dir($directory) && is_readable($directory), 404, 'Configured project directory is unavailable.');
+        abort_if($requireWritable && !is_writable($directory), 403, 'Configured project directory is not writable.');
+
+        return $directory . DIRECTORY_SEPARATOR . '.env';
     }
 }
