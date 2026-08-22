@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/deployment-scripts/{deploymentScript}/duplicate', [DeploymentScriptController::class, 'duplicate'])->middleware('can:scripts.create')->name('deployment-scripts.duplicate');
     Route::post('/deployment-scripts/{deploymentScript}/toggle', [DeploymentScriptController::class, 'toggle'])->middleware('can:scripts.update')->name('deployment-scripts.toggle');
     Route::get('/deployment-scripts/{deploymentScript}/application-logs', [DeploymentScriptController::class, 'downloadApplicationLogs'])->middleware('can:deployments.view')->name('deployment-scripts.application-logs');
+    Route::get('/deployment-scripts/{deploymentScript}/environment', [DeploymentScriptController::class, 'editEnvironment'])->middleware('can:scripts.update')->name('deployment-scripts.environment.edit');
+    Route::put('/deployment-scripts/{deploymentScript}/environment', [DeploymentScriptController::class, 'updateEnvironment'])->middleware('can:scripts.update')->name('deployment-scripts.environment.update');
 
     Route::get('/deployments/{execution}/logs', [DeploymentRunController::class, 'logs'])->middleware('can:deployments.view')->name('deployments.logs');
     Route::get('/deployment-queue', [DeploymentQueueController::class, 'index'])->middleware('can:deployments.view')->name('deployments.queue');
@@ -92,6 +94,9 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/provisioning/{connection}', [DatabaseProvisioningController::class, 'destroy'])->middleware('can:provisioning.delete')->name('provisioning.destroy');
     Route::post('/provisioning/{connection}/test', [DatabaseProvisioningController::class, 'test'])->middleware('can:provisioning.create')->name('provisioning.test');
     Route::get('/provisioning/{connection}', [DatabaseProvisioningController::class, 'browse'])->middleware('can:provisioning.view')->name('provisioning.browse');
+    Route::post('/provisioning/{connection}/rows', [DatabaseProvisioningController::class, 'storeRow'])->middleware('can:provisioning.data.create')->name('provisioning.rows.store');
+    Route::put('/provisioning/{connection}/rows', [DatabaseProvisioningController::class, 'updateRow'])->middleware('can:provisioning.data.update')->name('provisioning.rows.update');
+    Route::delete('/provisioning/{connection}/rows', [DatabaseProvisioningController::class, 'destroyRow'])->middleware('can:provisioning.data.delete')->name('provisioning.rows.destroy');
 
     Route::get('/reports/download', [ReportController::class, 'download'])->middleware('can:reports.export')->name('reports.download');
     Route::post('/reports/queue', [ReportController::class, 'queue'])->middleware('can:reports.export')->name('reports.queue');

@@ -30,6 +30,9 @@ class RolePermissionSeeder extends Seeder
             'provisioning.create',
             'provisioning.update',
             'provisioning.delete',
+            'provisioning.data.create',
+            'provisioning.data.update',
+            'provisioning.data.delete',
             'reports.export',
             'settings.view',
             'settings.manage',
@@ -60,6 +63,8 @@ class RolePermissionSeeder extends Seeder
             'provisioning.view',
             'provisioning.create',
             'provisioning.update',
+            'provisioning.data.create',
+            'provisioning.data.update',
             'reports.export',
             'settings.view',
         ]);
