@@ -92,7 +92,7 @@ class ProvisioningDatabaseService implements ProvisioningDatabaseServiceInterfac
         ];
     }
 
-    public function tableRows(ProvisioningDatabaseConnection $connection, string $database, string $table, array $description): LengthAwarePaginator
+    public function tableRows(ProvisioningDatabaseConnection $connection, string $database, string $table, array $description, ?string $search = null): LengthAwarePaginator
     {
         $this->configureConnection($connection, $database);
         $columns = $this->columnNames($description);
@@ -102,7 +102,17 @@ class ProvisioningDatabaseService implements ProvisioningDatabaseServiceInterfac
             throw new \InvalidArgumentException('The selected table has no columns.');
         }
 
-        return DB::connection('provisioning_runtime')->table(DB::raw($this->identifier($table)))->orderBy($orderBy)->paginate(25);
+        $query = DB::connection('provisioning_runtime')->table(DB::raw($this->identifier($table)))->orderBy($orderBy);
+
+        if (filled($search)) {
+            $query->where(function ($query) use ($columns, $search): void {
+                foreach ($columns as $column) {
+                    $query->orWhereRaw('CAST(' . $this->identifier($column) . ' AS CHAR) LIKE ?', ['%' . $search . '%']);
+                }
+            });
+        }
+
+        return $query->paginate(25)->withQueryString();
     }
 
     public function insertRow(ProvisioningDatabaseConnection $connection, string $database, string $table, array $description, array $data): void

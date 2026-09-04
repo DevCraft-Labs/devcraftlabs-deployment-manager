@@ -8,12 +8,19 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class DeploymentScriptRepository implements DeploymentScriptRepositoryInterface
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(?string $search = null, string $sort = 'created_at', string $direction = 'desc', int $perPage = 15): LengthAwarePaginator
     {
+        $sort = in_array($sort, ['name', 'created_at'], true) ? $sort : 'created_at';
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
+
         return DeploymentScript::query()
             ->with(['redisProfile', 'smtpProfile', 'telegramConnection'])
-            ->latest()
-            ->paginate($perPage);
+            ->when(filled($search), fn ($query) => $query->where(fn ($query) => $query
+                ->where('name', 'like', '%' . $search . '%')
+                ->orWhere('description', 'like', '%' . $search . '%')))
+            ->orderBy($sort, $direction)
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     public function findOrFail(int $id): DeploymentScript

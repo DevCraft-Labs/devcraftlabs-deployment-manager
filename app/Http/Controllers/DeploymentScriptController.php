@@ -13,10 +13,13 @@ use App\Models\SmtpProfile;
 use App\Models\TelegramConnection;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 class DeploymentScriptController extends Controller
 {
@@ -30,9 +33,31 @@ class DeploymentScriptController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('scripts.index', ['scripts' => $this->repository->paginate()]);
+        $search = $request->string('search')->trim()->value();
+        $sort = $request->string('sort', 'created_at')->value();
+        $direction = $request->string('direction', 'desc')->value();
+        $scripts = $this->repository->paginate($search, $sort, $direction);
+        $serviceStatuses = DeploymentScript::query()
+            ->whereNotNull('health_check_url')
+            ->where('health_check_url', '!=', '')
+            ->orderBy('name')
+            ->get()
+            ->mapWithKeys(function (DeploymentScript $script): array {
+            return [$script->id => $this->serviceStatus($script)];
+        });
+
+        return view('scripts.index', [
+            'scripts' => $scripts,
+            'search' => $search,
+            'sort' => $sort,
+            'direction' => $direction,
+            'serviceStatuses' => $serviceStatuses,
+            'configuredServiceCount' => $serviceStatuses->where('configured', true)->count(),
+            'runningServiceCount' => $serviceStatuses->where('isRunning', true)->count(),
+            'stoppedServiceCount' => $serviceStatuses->where('configured', true)->where('isRunning', false)->count(),
+        ]);
     }
 
     /**
@@ -63,7 +88,10 @@ class DeploymentScriptController extends Controller
      */
     public function show(DeploymentScript $deploymentScript): View
     {
-        return view('scripts.show', ['script' => $deploymentScript->load(['executions' => fn ($q) => $q->latest('started_at')->limit(20)])]);
+        return view('scripts.show', [
+            'script' => $deploymentScript->load(['executions' => fn ($q) => $q->latest('started_at')->limit(20)]),
+            'logFiles' => $this->logFiles($deploymentScript),
+        ]);
     }
 
     /**
@@ -130,10 +158,7 @@ class DeploymentScriptController extends Controller
 
     public function downloadApplicationLogs(DeploymentScript $deploymentScript): BinaryFileResponse
     {
-        $logDirectory = $deploymentScript->log_directory ?: rtrim($deploymentScript->working_directory, '/\\') . '/storage/logs';
-        $realDirectory = realpath($logDirectory);
-
-        abort_unless($realDirectory && is_dir($realDirectory) && is_readable($realDirectory), 404, 'Configured application log directory is unavailable.');
+        $realDirectory = $this->logDirectory($deploymentScript);
 
         $archivePath = storage_path('app/deployment-logs-' . $deploymentScript->id . '-' . now()->format('YmdHis') . '.zip');
         $archive = new \ZipArchive();
@@ -148,6 +173,25 @@ class DeploymentScriptController extends Controller
         $archive->close();
 
         return response()->download($archivePath, $deploymentScript->name . '-application-logs.zip')->deleteFileAfterSend();
+    }
+
+    public function downloadLogFile(DeploymentScript $deploymentScript, Request $request): BinaryFileResponse
+    {
+        $logFile = $this->logFile($deploymentScript, (string) $request->query('file'));
+
+        return response()->download($logFile);
+    }
+
+    public function tailLogFile(DeploymentScript $deploymentScript, Request $request): \Illuminate\Http\Response
+    {
+        $logFile = $this->logFile($deploymentScript, (string) $request->query('file'));
+        $contents = file_get_contents($logFile);
+        abort_if($contents === false, 500, 'Unable to read the requested log file.');
+
+        $lines = preg_split('/\R/', $contents) ?: [];
+        $tail = implode("\n", array_slice($lines, -200));
+
+        return response($tail, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
 
     public function editEnvironment(DeploymentScript $deploymentScript): View
@@ -195,5 +239,74 @@ class DeploymentScriptController extends Controller
         abort_if($requireWritable && !is_writable($directory), 403, 'Configured project directory is not writable.');
 
         return $directory . DIRECTORY_SEPARATOR . '.env';
+    }
+
+    private function logDirectory(DeploymentScript $deploymentScript): string
+    {
+        $logDirectory = $deploymentScript->log_directory ?: rtrim($deploymentScript->working_directory, '/\\') . '/storage/logs';
+        $realDirectory = realpath($logDirectory);
+
+        abort_unless($realDirectory && is_dir($realDirectory) && is_readable($realDirectory), 404, 'Configured application log directory is unavailable.');
+
+        return $realDirectory;
+    }
+
+    private function logFiles(DeploymentScript $deploymentScript): array
+    {
+        $logDirectory = $deploymentScript->log_directory ?: rtrim($deploymentScript->working_directory, '/\\') . '/storage/logs';
+        $directory = realpath($logDirectory);
+
+        if ($directory === false || !is_dir($directory) || !is_readable($directory)) {
+            return [];
+        }
+
+        $files = [];
+
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS)) as $file) {
+            if (!$file->isFile() || $file->isLink() || !$file->isReadable()) {
+                continue;
+            }
+
+            $path = $file->getPathname();
+            $files[] = [
+                'name' => ltrim(str_replace($directory, '', $path), DIRECTORY_SEPARATOR),
+                'updatedAt' => \Carbon\Carbon::createFromTimestamp($file->getMTime()),
+                'size' => $file->getSize(),
+            ];
+        }
+
+        usort($files, fn (array $left, array $right) => $right['updatedAt'] <=> $left['updatedAt']);
+
+        return $files;
+    }
+
+    private function logFile(DeploymentScript $deploymentScript, string $relativePath): string
+    {
+        abort_if($relativePath === '' || str_contains($relativePath, "\0") || preg_match('#(^|[\\\\/])\.\.([\\\\/]|$)#', $relativePath), 404);
+
+        $directory = $this->logDirectory($deploymentScript);
+        $path = realpath($directory . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath));
+
+        abort_unless($path && str_starts_with($path, $directory . DIRECTORY_SEPARATOR) && is_file($path) && !is_link($path) && is_readable($path), 404, 'Requested log file is unavailable.');
+
+        return $path;
+    }
+
+    private function serviceStatus(DeploymentScript $script): array
+    {
+        if (blank($script->health_check_url)) {
+            return ['configured' => false, 'isRunning' => false, 'status' => null, 'responseTime' => null, 'error' => null];
+        }
+
+        try {
+            $startedAt = microtime(true);
+            $response = Http::timeout(8)->get($script->health_check_url);
+            $responseTime = (int) round((microtime(true) - $startedAt) * 1000);
+            $isRunning = $response->status() >= 200 && $response->status() < 400;
+
+            return compact('isRunning', 'responseTime') + ['configured' => true, 'status' => $response->status(), 'error' => null];
+        } catch (Throwable $exception) {
+            return ['configured' => true, 'isRunning' => false, 'status' => null, 'responseTime' => null, 'error' => $exception->getMessage()];
+        }
     }
 }

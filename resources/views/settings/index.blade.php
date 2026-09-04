@@ -11,6 +11,9 @@
 <div class="col-md-3"><label class="form-label">Retention Days</label><input class="form-control" type="number" name="retention_days" value="{{ old('retention_days', $setting->retention_days) }}"></div>
 <div class="col-md-3 form-check mt-5 ms-3"><input class="form-check-input" type="checkbox" name="log_cleanup" value="1" @checked($setting->log_cleanup)><label class="form-check-label">Enable Log Cleanup</label></div>
 </div>
+@if(auth()->user()?->hasRole('Owner'))
+<div class="mb-3"><label class="form-label" for="announcement-editor">Dashboard Announcement</label><input type="hidden" name="announcement_html" id="announcement-html"><div class="btn-group mb-2" role="toolbar" aria-label="Announcement formatting"><button class="btn btn-outline-secondary" type="button" title="Bold" data-format="bold"><strong>B</strong></button><button class="btn btn-outline-secondary" type="button" title="Italic" data-format="italic"><em>I</em></button><button class="btn btn-outline-secondary" type="button" title="Underline" data-format="underline"><u>U</u></button><button class="btn btn-outline-secondary" type="button" title="Bulleted list" data-format="insertUnorderedList">List</button><button class="btn btn-outline-secondary" type="button" title="Numbered list" data-format="insertOrderedList">1.</button></div><div id="announcement-editor" class="form-control" contenteditable="true" style="min-height: 10rem; white-space: pre-wrap;">{!! old('announcement_html', $setting->announcement_html) !!}</div><div class="form-text">Visible above Recent Activity for everyone with dashboard access.</div></div>
+@endif
 @can('settings.manage')<button class="btn btn-primary">Save Settings</button>@else<button class="btn btn-secondary" disabled>Read-only access</button>@endcan
 </form>
 <div class="mt-4 d-flex gap-2">
@@ -20,3 +23,12 @@
     @endcan
 </div>
 @endsection
+@push('scripts')
+<script>
+    const announcementEditor = document.getElementById('announcement-editor');
+    if (announcementEditor) {
+        document.querySelectorAll('[data-format]').forEach(button => button.addEventListener('click', () => document.execCommand(button.dataset.format)));
+        announcementEditor.closest('form').addEventListener('submit', () => { document.getElementById('announcement-html').value = announcementEditor.innerHTML; });
+    }
+</script>
+@endpush

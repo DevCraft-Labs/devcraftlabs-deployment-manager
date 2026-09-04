@@ -89,11 +89,12 @@ class DatabaseProvisioningController extends Controller
         $tables = $database ? $this->service->listTables($connection, $database) : [];
         abort_unless($table === null || in_array($table, $tables, true), 404);
         $description = ($database && $table) ? $this->service->describeTable($connection, $database, $table) : ['columns' => [], 'indexes' => []];
-        $rows = $table ? $this->service->tableRows($connection, $database, $table, $description) : null;
+        $search = $request->string('search')->trim()->value();
+        $rows = $table ? $this->service->tableRows($connection, $database, $table, $description, $search) : null;
 
         $this->auditLogger->log('db.provisioning.browse', ProvisioningDatabaseConnection::class, $connection->id, ['database' => $database, 'table' => $table]);
 
-        return view('provisioning.browse', compact('connection', 'databases', 'tables', 'description', 'database', 'table', 'rows'));
+        return view('provisioning.browse', compact('connection', 'databases', 'tables', 'description', 'database', 'table', 'rows', 'search'));
     }
 
     public function storeRow(ProvisioningDatabaseConnection $connection, Request $request): RedirectResponse

@@ -12,7 +12,7 @@ interface ProvisioningDatabaseServiceInterface
 
     public function describeTable(ProvisioningDatabaseConnection $connection, string $database, string $table): array;
 
-    public function tableRows(ProvisioningDatabaseConnection $connection, string $database, string $table, array $description): \Illuminate\Pagination\LengthAwarePaginator;
+    public function tableRows(ProvisioningDatabaseConnection $connection, string $database, string $table, array $description, ?string $search = null): \Illuminate\Pagination\LengthAwarePaginator;
 
     public function insertRow(ProvisioningDatabaseConnection $connection, string $database, string $table, array $description, array $data): void;
 

@@ -12,7 +12,7 @@ class UpdateSettingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->hasRole('Owner') ?? false;
     }
 
     /**
@@ -30,6 +30,7 @@ class UpdateSettingsRequest extends FormRequest
             'default_redis_profile_id' => ['nullable', 'integer', 'exists:redis_profiles,id'],
             'retention_days' => ['required', 'integer', 'min:1', 'max:3650'],
             'log_cleanup' => ['nullable', 'boolean'],
+            'announcement_html' => ['nullable', 'string', 'max:50000'],
         ];
     }
 }
