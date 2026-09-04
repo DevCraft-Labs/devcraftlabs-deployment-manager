@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@include('scripts.breadcrumbs', ['breadcrumbItems' => [['label' => $script->name, 'url' => route('deployment-scripts.show', $script)], ['label' => 'Environment']]])
 <div class="page-heading">
     <div>
         <p class="eyebrow">Project Configuration</p>
