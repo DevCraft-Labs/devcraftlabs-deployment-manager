@@ -12,7 +12,7 @@
         body { background: var(--metro-paper); min-height: 100vh; font-family: "Segoe UI", Tahoma, sans-serif; }
         [data-bs-theme='dark'] body { background: #161616; }
         [x-cloak] { display: none !important; }
-        .app-rail { align-items: center; background: var(--metro-charcoal); display: flex; flex: 0 0 104px; flex-direction: column; min-height: 100vh; padding: 1rem .75rem; }
+        .app-rail { align-items: center; background: var(--metro-charcoal); bottom: 0; display: flex; flex: 0 0 104px; flex-direction: column; left: 0; min-height: 100vh; padding: 1rem .75rem; position: fixed; top: 0; z-index: 1040; }
         .app-rail .brand-mark { height: 46px; width: 46px; }
         .metro-menu-button { align-items: center; background: var(--metro-blue); border: 0; color: #fff; display: flex; flex-direction: column; font-size: .85rem; font-weight: 600; gap: .4rem; height: 92px; justify-content: center; margin: auto 0; width: 80px; }
         .metro-menu-button::before { background: linear-gradient(90deg, #fff 44%, transparent 44%, transparent 56%, #fff 56%), linear-gradient(90deg, #fff 44%, transparent 44%, transparent 56%, #fff 56%); background-position: 0 0, 0 100%; background-repeat: no-repeat; background-size: 100% 42%; content: ''; height: 26px; width: 30px; }
@@ -25,7 +25,7 @@
         .metro-tile:hover, .metro-tile:focus { color: #fff; filter: brightness(.88); outline: 3px solid #50e6ff; outline-offset: -3px; transform: translateY(-2px); }
         .metro-tile--blue { background: #0078d4; }.metro-tile--teal { background: #008272; }.metro-tile--orange { background: #d83b01; }.metro-tile--green { background: #107c10; }.metro-tile--magenta { background: #b146c2; }.metro-tile--slate { background: #4c4a48; }
         .metro-tile__label { font-size: 1.05rem; font-weight: 600; }.metro-tile__hint { font-size: .78rem; opacity: .85; }
-        .main-panel { min-height: 100vh; padding: 2rem; }
+        .main-panel { margin-left: 104px; min-height: 100vh; padding: 2rem; width: calc(100% - 104px); }
         .glass { background: #fff; border-left: 5px solid var(--metro-blue); box-shadow: none; }
         [data-bs-theme='dark'] .glass { background: #292929; }
         .nav-link { border-left: 4px solid transparent; padding: .7rem .8rem; }
@@ -56,7 +56,7 @@
         .page-heading { align-items: end; display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
         .page-heading h1 { font-size: 1.75rem; margin: 0; }
         .eyebrow { color: var(--metro-teal); font-size: .75rem; font-weight: 700; letter-spacing: .08em; margin: 0 0 .25rem; text-transform: uppercase; }
-        @media (max-width: 767px) { .app-rail { flex-basis: 72px; padding: .75rem .25rem; } .app-rail .brand-mark { height: 38px; width: 38px; } .metro-menu-button { height: 74px; width: 62px; } .metro-start-menu { left: 72px; padding: 1.25rem; } .metro-start-menu__title { font-size: 1.6rem; } .metro-tiles { grid-template-columns: 1fr; } .main-panel { padding: 1rem; } .page-heading { align-items: start; flex-direction: column; } .pagination { gap: .15rem; } .pagination .page-link { min-width: 2.25rem; padding: .375rem .55rem; } }
+        @media (max-width: 767px) { .app-rail { flex-basis: 72px; padding: .75rem .25rem; } .app-rail .brand-mark { height: 38px; width: 38px; } .metro-menu-button { height: 74px; width: 62px; } .metro-start-menu { left: 72px; padding: 1.25rem; } .metro-start-menu__title { font-size: 1.6rem; } .metro-tiles { grid-template-columns: 1fr; } .main-panel { margin-left: 72px; padding: 1rem; width: calc(100% - 72px); } .page-heading { align-items: start; flex-direction: column; } .pagination { gap: .15rem; } .pagination .page-link { min-width: 2.25rem; padding: .375rem .55rem; } }
     </style>
 </head>
 <body x-init="$watch('darkMode', value => localStorage.setItem('dark_mode', value ? '1' : '0'))">
