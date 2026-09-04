@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityAudit;
+use App\Models\ApplicationSetting;
 use App\Models\DeploymentExecution;
 use App\Models\DeploymentScript;
 use App\Models\RedisProfile;
@@ -31,6 +32,7 @@ class DashboardController extends Controller
             'totalSmtpConnections' => SmtpProfile::query()->count(),
             'totalRedisConnections' => RedisProfile::query()->count(),
             'recentActivities' => ActivityAudit::query()->latest()->limit(20)->get(),
+            'announcementHtml' => ApplicationSetting::query()->value('announcement_html'),
         ]);
     }
 }

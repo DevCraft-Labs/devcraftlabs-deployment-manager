@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3"><div><h4 class="mb-0">{{ $connection->name }} Explorer</h4><small class="text-secondary">{{ $connection->host }}:{{ $connection->port }} · Read-only metadata access</small></div><a class="btn btn-outline-secondary" href="{{ route('provisioning.index') }}">Connections</a></div>
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h4 class="mb-0">{{ $connection->name }} Explorer</h4><small class="text-secondary">{{ $connection->host }}:{{ $connection->port }} · Safe row-level data access</small></div><a class="btn btn-outline-secondary" href="{{ route('provisioning.index') }}">Connections</a></div>
 <form class="row g-2 mb-4" method="GET" action="{{ route('provisioning.browse', $connection) }}">
     <div class="col-md-5"><label class="form-label">Database</label><select class="form-select" name="database" onchange="this.form.submit()"><option value="">Select Database</option>@foreach($databases as $db)<option value="{{ $db }}" @selected($database === $db)>{{ $db }}</option>@endforeach</select></div>
     <div class="col-md-5"><label class="form-label">Table</label><select class="form-select" name="table" onchange="this.form.submit()" @disabled(!$database)><option value="">Select Table</option>@foreach($tables as $tb)<option value="{{ $tb }}" @selected($table === $tb)>{{ $tb }}</option>@endforeach</select></div>
@@ -10,6 +10,7 @@
     $primaryKeyColumns = collect($description['indexes'])->where('Key_name', 'PRIMARY')->sortBy('Seq_in_index')->pluck('Column_name')->all();
 @endphp
 <div class="alert alert-info">Working with <strong>{{ $database }}.{{ $table }}</strong>. Every data change is audited.</div>
+<form class="row g-2 mb-3" method="GET" action="{{ route('provisioning.browse', $connection) }}"><input type="hidden" name="database" value="{{ $database }}"><input type="hidden" name="table" value="{{ $table }}"><div class="col-md-6"><label class="visually-hidden" for="row-search">Search rows</label><input id="row-search" class="form-control" name="search" value="{{ $search }}" placeholder="Search all columns"></div><div class="col-auto"><button class="btn btn-outline-primary">Search</button></div></form>
 @if($primaryKeyColumns)
     @can('provisioning.data.create')
     <div class="card mb-3"><div class="card-header">Add Row</div><div class="card-body"><form method="POST" action="{{ route('provisioning.rows.store', $connection) }}">@csrf<input type="hidden" name="database" value="{{ $database }}"><input type="hidden" name="table" value="{{ $table }}"><div class="row g-3">
@@ -30,7 +31,7 @@
             <tr><td colspan="{{ count($description['columns']) + 1 }}" class="text-center text-secondary py-4">No rows found.</td></tr>
         @endforelse
     </tbody></table></div></div>
-    <div class="mt-3">{{ $rows->withQueryString()->links() }}</div>
+    <div class="pagination-nav mt-3">{{ $rows->withQueryString()->links() }}</div>
     @can('provisioning.data.update')
         @foreach($rows as $row)
             @php($key = base64_encode(json_encode(array_intersect_key((array) $row, array_flip($primaryKeyColumns)))))

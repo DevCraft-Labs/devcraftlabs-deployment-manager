@@ -19,6 +19,7 @@ class ApplicationSetting extends Model
         'default_redis_profile_id',
         'retention_days',
         'log_cleanup',
+        'announcement_html',
     ];
 
     protected function casts(): array

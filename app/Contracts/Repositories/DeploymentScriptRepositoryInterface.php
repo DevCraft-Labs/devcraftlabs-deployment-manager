@@ -7,7 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface DeploymentScriptRepositoryInterface
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(?string $search = null, string $sort = 'created_at', string $direction = 'desc', int $perPage = 15): LengthAwarePaginator;
 
     public function findOrFail(int $id): DeploymentScript;
 

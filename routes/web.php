@@ -12,7 +12,6 @@ use App\Http\Controllers\FileClipboardController;
 use App\Http\Controllers\RedisProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\ServerMonitoringController;
 use App\Http\Controllers\SmtpProfileController;
 use App\Http\Controllers\TelegramConnectionController;
 use App\Http\Controllers\TelegramWebhookController;
@@ -44,7 +43,6 @@ Route::delete('/file-clipboard/{fileClipboard}', [FileClipboardController::class
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
-    Route::get('/server-monitoring', [ServerMonitoringController::class, 'index'])->middleware('can:deployments.view')->name('monitoring.index');
 
     Route::resource('redis-profiles', RedisProfileController::class)->only(['create', 'store'])->middleware('can:connections.create');
     Route::resource('redis-profiles', RedisProfileController::class)->only(['index', 'show'])->middleware('can:connections.view');
@@ -77,6 +75,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/deployment-scripts/{deploymentScript}/duplicate', [DeploymentScriptController::class, 'duplicate'])->middleware('can:scripts.create')->name('deployment-scripts.duplicate');
     Route::post('/deployment-scripts/{deploymentScript}/toggle', [DeploymentScriptController::class, 'toggle'])->middleware('can:scripts.update')->name('deployment-scripts.toggle');
     Route::get('/deployment-scripts/{deploymentScript}/application-logs', [DeploymentScriptController::class, 'downloadApplicationLogs'])->middleware('can:deployments.view')->name('deployment-scripts.application-logs');
+    Route::get('/deployment-scripts/{deploymentScript}/application-logs/download', [DeploymentScriptController::class, 'downloadLogFile'])->middleware('can:deployments.view')->name('deployment-scripts.log-file.download');
+    Route::get('/deployment-scripts/{deploymentScript}/application-logs/tail', [DeploymentScriptController::class, 'tailLogFile'])->middleware('can:deployments.view')->name('deployment-scripts.log-file.tail');
     Route::get('/deployment-scripts/{deploymentScript}/environment', [DeploymentScriptController::class, 'editEnvironment'])->middleware('can:scripts.update')->name('deployment-scripts.environment.edit');
     Route::put('/deployment-scripts/{deploymentScript}/environment', [DeploymentScriptController::class, 'updateEnvironment'])->middleware('can:scripts.update')->name('deployment-scripts.environment.update');
 

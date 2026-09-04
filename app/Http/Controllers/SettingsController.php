@@ -31,10 +31,20 @@ class SettingsController extends Controller
     public function update(UpdateSettingsRequest $request): RedirectResponse
     {
         $setting = ApplicationSetting::query()->firstOrCreate([]);
-        $setting->update($request->validated());
+        $data = $request->validated();
+        $data['announcement_html'] = $this->sanitizeAnnouncement($data['announcement_html'] ?? '');
+        $setting->update($data);
 
         $this->auditLogger->log('settings.update', ApplicationSetting::class, $setting->id);
 
         return back()->with('status', 'Settings updated.');
+    }
+
+    private function sanitizeAnnouncement(string $announcement): ?string
+    {
+        $announcement = strip_tags($announcement, '<p><br><strong><b><em><i><u><ul><ol><li><h2><h3><blockquote><code><pre>');
+        $announcement = preg_replace('/<([a-z0-9]+)\b[^>]*>/i', '<$1>', $announcement) ?? '';
+
+        return filled(strip_tags($announcement)) ? $announcement : null;
     }
 }
