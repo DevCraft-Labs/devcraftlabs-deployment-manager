@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DeploymentScript extends Model
 {
@@ -54,6 +55,11 @@ class DeploymentScript extends Model
     public function executions(): HasMany
     {
         return $this->hasMany(DeploymentExecution::class);
+    }
+
+    public function latestExecution(): HasOne
+    {
+        return $this->hasOne(DeploymentExecution::class)->latestOfMany('started_at');
     }
 
     public function schedule(): HasMany

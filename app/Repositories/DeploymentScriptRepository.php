@@ -14,7 +14,7 @@ class DeploymentScriptRepository implements DeploymentScriptRepositoryInterface
         $direction = $direction === 'asc' ? 'asc' : 'desc';
 
         return DeploymentScript::query()
-            ->with(['redisProfile', 'smtpProfile', 'telegramConnection'])
+            ->with(['redisProfile', 'smtpProfile', 'telegramConnection', 'latestExecution'])
             ->when(filled($search), fn ($query) => $query->where(fn ($query) => $query
                 ->where('name', 'like', '%' . $search . '%')
                 ->orWhere('description', 'like', '%' . $search . '%')))

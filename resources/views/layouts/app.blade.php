@@ -49,6 +49,11 @@
         .pagination > * { flex: 0 0 auto; }
         .pagination .page-link { min-width: 2.5rem; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
         .pagination-nav { max-width: 100%; overflow-x: auto; padding-bottom: .25rem; }
+        .app-loader { align-items: center; background: rgba(20, 20, 20, .48); display: flex; inset: 0; justify-content: center; position: fixed; z-index: 2000; }
+        .app-loader__content { align-items: center; background: #fff; border-left: 5px solid var(--metro-blue); color: #1b1b1b; display: flex; gap: .75rem; min-width: 190px; padding: 1rem 1.25rem; }
+        [data-bs-theme='dark'] .app-loader__content { background: #292929; color: #fff; }
+        .app-loader__spinner { animation: app-loader-spin .8s linear infinite; border: 3px solid #c7e0f4; border-radius: 50%; border-top-color: var(--metro-blue); height: 28px; width: 28px; }
+        @keyframes app-loader-spin { to { transform: rotate(360deg); } }
         .announcement-card { border-left: 5px solid #c50f1f; }
         .announcement-card .card-header { background: #c50f1f; }
         .announcement-card .announcement-content { background: #fde7e9; color: #4a0d13; }
@@ -64,7 +69,7 @@
 <div class="d-flex">
     <aside class="app-rail text-white" aria-label="Application menu">
         <img class="brand-mark" src="{{ asset('images/devcraft-labs-logo.svg') }}" alt="DevCraft Labs">
-        <button class="metro-menu-button" type="button" @click="menuOpen = true" aria-controls="metro-start-menu" :aria-expanded="menuOpen.toString()"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 7.5 21.5 5v18H4V7.5Zm20.5-2.8L44 2v21H24.5V4.7ZM4 25h17.5v18L4 40.5V25Zm20.5 0H44v21l-19.5-2.7V25Z"/></svg>Menu</button>
+        <button class="metro-menu-button" type="button" @click="menuOpen = !menuOpen" aria-controls="metro-start-menu" :aria-expanded="menuOpen.toString()"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 7.5 21.5 5v18H4V7.5Zm20.5-2.8L44 2v21H24.5V4.7ZM4 25h17.5v18L4 40.5V25Zm20.5 0H44v21l-19.5-2.7V25Z"/></svg>Menu</button>
     </aside>
     <main class="main-panel flex-grow-1 p-4">
         <div class="glass p-3 mb-4 d-flex justify-content-between align-items-center">
@@ -104,11 +109,38 @@
         @can('users.manage')<a class="metro-tile metro-tile--green" href="{{ route('users.index') }}"><i class="metro-tile__icon" data-lucide="users" aria-hidden="true"></i><span class="metro-tile__label">User Management</span><span class="metro-tile__hint">Roles and access</span></a>@endcan
     </nav>
 </section>
+<div class="app-loader" id="app-loader" role="status" aria-live="polite" aria-label="Loading" hidden><div class="app-loader__content"><span class="app-loader__spinner" aria-hidden="true"></span><span>Loading...</span></div></div>
 <script src="https://cdn.jsdelivr.net/npm/axios@1.7.7/dist/axios.min.js"></script>
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>lucide.createIcons();</script>
+<script>
+    const appLoader = document.getElementById('app-loader');
+    const showAppLoader = () => { appLoader.hidden = false; };
+
+    document.addEventListener('submit', (event) => {
+        if (event.defaultPrevented || !event.target.checkValidity()) {
+            return;
+        }
+
+        showAppLoader();
+        event.target.querySelectorAll('button[type="submit"], input[type="submit"]').forEach((control) => { control.disabled = true; });
+    });
+
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest('a[href]');
+        const href = link?.getAttribute('href');
+
+        if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank' || link.hasAttribute('download') || link.hasAttribute('data-bs-toggle') || !href || href.startsWith('#') || !href.startsWith('/') && !href.startsWith(window.location.origin)) {
+            return;
+        }
+
+        showAppLoader();
+    });
+
+    window.addEventListener('pageshow', () => { appLoader.hidden = true; });
+</script>
 @stack('scripts')
 </body>
 </html>

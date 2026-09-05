@@ -134,7 +134,7 @@ class DeploymentScriptController extends Controller
         $this->deploymentService->queue($deploymentScript, Auth::user(), 'manual');
         $this->auditLogger->log('script.run', DeploymentScript::class, $deploymentScript->id);
 
-        return back()->with('status', 'Script execution queued.');
+        return back()->with('status', "Deployment of {$deploymentScript->name} to {$deploymentScript->working_directory} has been queued.");
     }
 
     public function duplicate(DeploymentScript $deploymentScript): RedirectResponse
