@@ -132,7 +132,7 @@
         const link = event.target.closest('a[href]');
         const href = link?.getAttribute('href');
 
-        if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank' || link.hasAttribute('download') || link.hasAttribute('data-bs-toggle') || !href || href.startsWith('#') || !href.startsWith('/') && !href.startsWith(window.location.origin)) {
+        if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target === '_blank' || link.hasAttribute('download') || link.hasAttribute('data-loader-ignore') || link.hasAttribute('data-bs-toggle') || !href || href.startsWith('#') || !href.startsWith('/') && !href.startsWith(window.location.origin)) {
             return;
         }
 
