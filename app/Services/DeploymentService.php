@@ -13,6 +13,7 @@ use App\Models\DeploymentScript;
 use App\Models\TelegramConnection;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -144,8 +145,7 @@ class DeploymentService implements DeploymentServiceInterface
         $outcome = $isSuccess ? 'succeeded' : 'failed';
         $duration = $execution->duration_ms === null ? 'unknown' : number_format($execution->duration_ms / 1000, 2) . 's';
         $exitCode = $execution->exit_code === null ? 'n/a' : (string) $execution->exit_code;
-
-        SendTelegramNotificationJob::dispatch($connection->id, sprintf(
+        $message = sprintf(
             "*Deployment %s*\nScript: %s\nSource: %s\nDuration: %s\nExit code: %s\nExecution: #%d",
             $outcome,
             $this->escapeTelegramMarkdown($script->name),
@@ -153,7 +153,32 @@ class DeploymentService implements DeploymentServiceInterface
             $duration,
             $exitCode,
             $execution->id,
-        ));
+        );
+
+        if ($isSuccess && ($latestCommit = $this->latestCommitMessage($script)) !== null) {
+            $message .= "\nLatest commit: " . $this->escapeTelegramMarkdown($latestCommit);
+        }
+
+        SendTelegramNotificationJob::dispatch($connection->id, $message);
+    }
+
+    private function latestCommitMessage(DeploymentScript $script): ?string
+    {
+        try {
+            $process = new Process(['git', 'log', '-1', '--pretty=format:%h %s'], $script->working_directory);
+            $process->setTimeout(5);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+
+            $message = trim($process->getOutput());
+
+            return $message === '' ? null : Str::limit($message, 300);
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     private function buildFailureReport(DeploymentExecution $execution, DeploymentScript $script, $finishedAt, int $duration, ?int $exitCode, string $stderr): string
